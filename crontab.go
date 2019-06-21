@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//定时任务结构体
 type Job struct {
 	Interval     int
 	IntervalTime time.Duration
@@ -14,6 +15,7 @@ type Job struct {
 	StopChan     chan bool
 }
 
+//运行多次任务
 func (job *Job) RunTicker() {
 	job.Ticker = time.NewTicker(job.IntervalTime)
 	defer job.Ticker.Stop()
@@ -31,6 +33,7 @@ func (job *Job) RunTicker() {
 	}
 }
 
+//运行单次任务
 func (job *Job) RunTimer() {
 	job.Timer = time.NewTimer(job.IntervalTime)
 	defer job.Timer.Stop()
@@ -40,6 +43,7 @@ func (job *Job) RunTimer() {
 	}
 }
 
+//运行任务自身
 func (job *Job) Run() {
 	job.StopChan = make(chan bool)
 
@@ -51,6 +55,7 @@ func (job *Job) Run() {
 	}
 }
 
+//停止当前任务
 func (job *Job) Stop() {
 	//time.Sleep(time.Microsecond * 1)  //sleep一段时间会更好的退出
 	job.StopChan <- true
@@ -59,11 +64,13 @@ func (job *Job) Stop() {
 
 //----------------------------
 
+//封装定时执行程序结构体
 type Crontab struct {
 	list []*Job
 	run  bool
 }
 
+//添加一个定时程序
 func (c *Crontab) Add(intervalType int, intervalTime time.Duration, callback func()) (job *Job) {
 	job = &Job{
 		Interval:     intervalType,
@@ -87,13 +94,17 @@ func (c *Crontab) Add(intervalType int, intervalTime time.Duration, callback fun
 
 //----------------------------
 
+//定义单次定时器类型
 const TypeTimer = 0
+
+//定义多次定时器类型
 const TypeTicker = 1
 
 var (
 	cron = new(Crontab)
 )
 
+//创建一个定时器
 func New(intervalType int, intervalTime time.Duration, callback func()) {
 	job := cron.Add(intervalType, intervalTime, callback)
 
@@ -103,14 +114,17 @@ func New(intervalType int, intervalTime time.Duration, callback func()) {
 	}
 }
 
+//创建一个单次定时器
 func NewTimer(intervalTime time.Duration, callback func()) {
 	New(TypeTimer, intervalTime, callback)
 }
 
+//创建一个多次定时器
 func NewTicker(intervalTime time.Duration, callback func()) {
 	New(TypeTicker, intervalTime, callback)
 }
 
+//运行已创建的定时器
 func Run() {
 	cron.run = true
 
@@ -119,6 +133,7 @@ func Run() {
 	}
 }
 
+//停止某一定时器或所有定时器
 func Stop(cronId string) {
 	//Todo: 能够停止某一定时器或所有定时器
 }
