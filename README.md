@@ -23,7 +23,7 @@ import (
 
 func init() {
     //运行定时器，可随意放置代码位置
-    crontab.Run()
+    crontab.Init()
 }
 
 func main() {

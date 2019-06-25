@@ -67,7 +67,7 @@ func (job *Job) Stop() {
 //封装定时执行程序结构体
 type Crontab struct {
 	list []*Job
-	run  bool
+	init bool
 }
 
 //添加一个定时程序
@@ -109,7 +109,7 @@ func New(intervalType int, intervalTime time.Duration, callback func()) {
 	job := cron.Add(intervalType, intervalTime, callback)
 
 	// 启动状态则直接启动该定时器任务
-	if cron.run {
+	if cron.init {
 		job.Run()
 	}
 }
@@ -124,12 +124,12 @@ func NewTicker(intervalTime time.Duration, callback func()) {
 	New(TypeTicker, intervalTime, callback)
 }
 
-//运行已创建的定时器
-func Run() {
-	cron.run = true
+//初始化已创建的定时器
+func Init() {
+	cron.init = true
 
-	for _, c := range cron.list {
-		c.Run()
+	for _, job := range cron.list {
+		job.Run()
 	}
 }
 
